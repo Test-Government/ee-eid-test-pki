@@ -1,0 +1,11 @@
+# Standalone run of the test PKI. From another project, either add a similar
+# service block (see docs/docker.md) or point at the published host ports.
+services:
+  eid-test-pki:
+    build: .
+    image: ee-eid-test-pki:latest
+    container_name: eid-test-pki
+    ports:
+      - "8080:8080"   # HTTP: CA certs, CRLs, trust bundles
+      - "8081:8081"   # OCSP responders
+      - "8082:8082"   # Management API: issue/fetch/revoke, toggle OCSP/CRL

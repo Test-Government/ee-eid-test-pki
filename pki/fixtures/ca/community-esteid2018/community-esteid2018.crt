@@ -1,0 +1,84 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 4098 (0x1002)
+        Signature Algorithm: ecdsa-with-SHA512
+        Issuer: C=EE,O=EE eID Community Test PKI,organizationIdentifier=NTREE-00000000,CN=COMMUNITY TEST of EE-GovCA2018
+        Validity
+            Not Before: Jul 16 06:40:06 2026 GMT
+            Not After : Jul 12 06:40:06 2041 GMT
+        Subject: C=EE,O=EE eID Community Test PKI,organizationIdentifier=NTREE-00000000,CN=COMMUNITY TEST of ESTEID2018
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (521 bit)
+                pub:
+                    04:01:a5:d9:24:3f:fb:bf:b6:75:92:aa:e4:a8:2a:
+                    c3:82:31:13:12:3d:f8:77:38:ca:7d:de:f8:0c:cf:
+                    a0:8f:46:94:89:70:ea:af:87:3b:25:fc:6c:ee:ed:
+                    19:e5:97:bf:d7:48:37:6f:26:03:e3:56:ec:44:5e:
+                    b5:d9:7e:ab:94:a0:1e:01:63:20:5b:e9:32:9f:53:
+                    05:69:b8:da:33:92:35:7b:17:0c:8c:e1:9f:7c:59:
+                    57:7c:58:07:15:10:bf:27:cd:b1:4d:db:c6:9a:7b:
+                    cd:47:ff:6b:ac:a9:f8:77:b4:82:51:06:83:75:c7:
+                    a8:c1:4e:23:44:f0:65:d9:de:cb:a3:3f:f6
+                ASN1 OID: secp521r1
+                NIST CURVE: P-521
+        X509v3 extensions:
+            X509v3 Subject Key Identifier: 
+                49:1B:C6:1F:8F:6A:46:8F:CA:77:ED:C5:D9:CA:2D:E9:E9:C3:0B:0A
+            X509v3 Authority Key Identifier: 
+                E7:38:2E:59:B9:02:A7:FC:F6:E9:46:64:5F:C2:41:61:5A:96:CB:75
+            X509v3 Basic Constraints: critical
+                CA:TRUE, pathlen:0
+            X509v3 Key Usage: critical
+                Certificate Sign, CRL Sign
+            X509v3 Extended Key Usage: critical
+                OCSP Signing, TLS Web Client Authentication, E-mail Protection
+            X509v3 Certificate Policies: 
+                Policy: 0.4.0.2042.1.2
+                Policy: 0.4.0.194112.1.2
+                Policy: 1.3.6.1.4.1.51361.1.2.1
+                  CPS: https://www.sk.ee/CPS
+            X509v3 CRL Distribution Points: 
+                Full Name:
+                  URI:http://host.docker.internal:8080/crl/community-eegovca2018.crl
+
+            Authority Information Access: 
+                CA Issuers - URI:http://host.docker.internal:8080/certs/community-eegovca2018.crt
+                OCSP - URI:http://host.docker.internal:8081/community-eegovca2018
+    Signature Algorithm: ecdsa-with-SHA512
+    Signature Value:
+        30:81:88:02:42:01:ed:32:ea:44:44:63:cb:f0:07:db:14:17:
+        2b:a0:f7:fe:6c:6c:d8:43:34:3d:91:57:7c:0e:01:4e:68:e4:
+        c5:5e:6e:ef:06:69:64:89:6a:88:d3:2c:71:eb:e1:97:4e:fb:
+        cd:c3:f8:2a:77:d6:3a:d9:86:5c:19:44:7c:5d:2d:bf:bf:02:
+        42:00:cc:96:68:04:93:e6:68:f1:45:47:20:06:59:db:f6:88:
+        c0:f9:c8:51:3c:55:41:0d:95:17:d3:88:50:46:f7:7c:1e:21:
+        71:8b:28:8c:c8:4d:b4:04:3e:d5:1c:99:fa:08:ca:10:ee:30:
+        ab:1f:32:ae:9e:96:c1:b8:19:9a:36:78:d3
+
+-----BEGIN CERTIFICATE-----
+MIIEPDCCA52gAwIBAgICEAIwCgYIKoZIzj0EAwQwczELMAkGA1UEBhMCRUUxIjAg
+BgNVBAoMGUVFIGVJRCBDb21tdW5pdHkgVGVzdCBQS0kxFzAVBgNVBGEMDk5UUkVF
+LTAwMDAwMDAwMScwJQYDVQQDDB5DT01NVU5JVFkgVEVTVCBvZiBFRS1Hb3ZDQTIw
+MTgwHhcNMjYwNzE2MDY0MDA2WhcNNDEwNzEyMDY0MDA2WjBxMQswCQYDVQQGEwJF
+RTEiMCAGA1UECgwZRUUgZUlEIENvbW11bml0eSBUZXN0IFBLSTEXMBUGA1UEYQwO
+TlRSRUUtMDAwMDAwMDAxJTAjBgNVBAMMHENPTU1VTklUWSBURVNUIG9mIEVTVEVJ
+RDIwMTgwgZswEAYHKoZIzj0CAQYFK4EEACMDgYYABAGl2SQ/+7+2dZKq5Kgqw4Ix
+ExI9+Hc4yn3e+AzPoI9GlIlw6q+HOyX8bO7tGeWXv9dIN28mA+NW7ERetdl+q5Sg
+HgFjIFvpMp9TBWm42jOSNXsXDIzhn3xZV3xYBxUQvyfNsU3bxpp7zUf/a6yp+He0
+glEGg3XHqMFOI0TwZdney6M/9qOCAd4wggHaMB0GA1UdDgQWBBRJG8Yfj2pGj8p3
+7cXZyi3p6cMLCjAfBgNVHSMEGDAWgBTnOC5ZuQKn/PbpRmRfwkFhWpbLdTASBgNV
+HRMBAf8ECDAGAQH/AgEAMA4GA1UdDwEB/wQEAwIBBjAqBgNVHSUBAf8EIDAeBggr
+BgEFBQcDCQYIKwYBBQUHAwIGCCsGAQUFBwMEMFIGA1UdIARLMEkwCAYGBACPegEC
+MAkGBwQAi+xAAQIwMgYLKwYBBAGDkSEBAgEwIzAhBggrBgEFBQcCARYVaHR0cHM6
+Ly93d3cuc2suZWUvQ1BTME8GA1UdHwRIMEYwRKBCoECGPmh0dHA6Ly9ob3N0LmRv
+Y2tlci5pbnRlcm5hbDo4MDgwL2NybC9jb21tdW5pdHktZWVnb3ZjYTIwMTguY3Js
+MIGiBggrBgEFBQcBAQSBlTCBkjBMBggrBgEFBQcwAoZAaHR0cDovL2hvc3QuZG9j
+a2VyLmludGVybmFsOjgwODAvY2VydHMvY29tbXVuaXR5LWVlZ292Y2EyMDE4LmNy
+dDBCBggrBgEFBQcwAYY2aHR0cDovL2hvc3QuZG9ja2VyLmludGVybmFsOjgwODEv
+Y29tbXVuaXR5LWVlZ292Y2EyMDE4MAoGCCqGSM49BAMEA4GMADCBiAJCAe0y6kRE
+Y8vwB9sUFyug9/5sbNhDND2RV3wOAU5o5MVebu8GaWSJaojTLHHr4ZdO+83D+Cp3
+1jrZhlwZRHxdLb+/AkIAzJZoBJPmaPFFRyAGWdv2iMD5yFE8VUENlRfTiFBG93we
+IXGLKIzITbQEPtUcmfoIyhDuMKsfMq6elsG4GZo2eNM=
+-----END CERTIFICATE-----

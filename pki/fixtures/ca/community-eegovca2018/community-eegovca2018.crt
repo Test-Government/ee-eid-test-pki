@@ -1,0 +1,70 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            56:3a:4d:f7:27:e9:a0:e0:7e:db:76:99:3a:60:f8:36:25:91:49:f6
+        Signature Algorithm: ecdsa-with-SHA512
+        Issuer: C=EE,O=EE eID Community Test PKI,organizationIdentifier=NTREE-00000000,CN=COMMUNITY TEST of EE-GovCA2018
+        Validity
+            Not Before: Jul 16 06:40:06 2026 GMT
+            Not After : Jul 15 06:40:06 2041 GMT
+        Subject: C=EE,O=EE eID Community Test PKI,organizationIdentifier=NTREE-00000000,CN=COMMUNITY TEST of EE-GovCA2018
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (521 bit)
+                pub:
+                    04:00:70:85:4a:3f:f3:98:ab:f2:24:d1:bf:6a:60:
+                    ea:4b:f8:39:a2:1c:62:cc:87:79:54:51:cb:83:ca:
+                    43:69:4a:de:3e:10:76:8f:ef:11:7b:4e:8e:83:91:
+                    71:44:56:12:17:14:30:33:9f:0f:7a:50:da:de:1a:
+                    93:e1:b3:a5:b8:1a:c8:00:2e:af:cc:96:4a:59:cd:
+                    47:e6:bc:71:2d:ea:3d:3f:6a:03:37:77:b6:a2:d9:
+                    90:b2:41:f1:ff:a6:1e:35:17:63:04:99:cf:d2:b4:
+                    19:81:3c:db:9f:df:ec:96:cd:4a:c6:fe:37:bf:e9:
+                    6e:33:8c:34:4a:08:c6:a2:d5:81:37:49:7d
+                ASN1 OID: secp521r1
+                NIST CURVE: P-521
+        X509v3 extensions:
+            X509v3 Subject Key Identifier: 
+                E7:38:2E:59:B9:02:A7:FC:F6:E9:46:64:5F:C2:41:61:5A:96:CB:75
+            X509v3 Authority Key Identifier: 
+                E7:38:2E:59:B9:02:A7:FC:F6:E9:46:64:5F:C2:41:61:5A:96:CB:75
+            X509v3 Basic Constraints: critical
+                CA:TRUE, pathlen:1
+            X509v3 Key Usage: critical
+                Certificate Sign, CRL Sign
+            X509v3 Certificate Policies: 
+                Policy: 0.4.0.2042.1.2
+                Policy: 0.4.0.194112.1.2
+                Policy: 1.3.6.1.4.1.51361.1.2.1
+                  CPS: https://www.sk.ee/CPS
+    Signature Algorithm: ecdsa-with-SHA512
+    Signature Value:
+        30:81:87:02:42:00:c5:f1:88:92:e1:df:96:6c:07:9a:22:d8:
+        7a:16:d4:be:2f:59:b8:35:bc:8e:58:ab:24:9d:8d:5d:cb:4e:
+        3f:74:57:e1:7b:b3:cd:ba:a1:0b:81:66:1c:1d:c0:29:e0:f6:
+        95:2f:cd:03:cd:29:83:d4:f3:a0:4b:52:4e:25:91:68:4a:02:
+        41:0a:e6:49:ff:8c:59:25:ce:0a:e9:41:24:aa:bf:40:71:f8:
+        81:ff:45:14:e0:7a:72:11:ad:8e:ef:5f:52:6e:46:a3:37:c1:
+        2b:73:5f:53:20:ab:84:d6:7e:82:f2:03:0f:3c:7a:83:ca:b0:
+        21:77:2b:0c:b3:4d:9e:03:ac:80:b2:0b
+
+-----BEGIN CERTIFICATE-----
+MIIDKzCCAo2gAwIBAgIUVjpN9yfpoOB+23aZOmD4NiWRSfYwCgYIKoZIzj0EAwQw
+czELMAkGA1UEBhMCRUUxIjAgBgNVBAoMGUVFIGVJRCBDb21tdW5pdHkgVGVzdCBQ
+S0kxFzAVBgNVBGEMDk5UUkVFLTAwMDAwMDAwMScwJQYDVQQDDB5DT01NVU5JVFkg
+VEVTVCBvZiBFRS1Hb3ZDQTIwMTgwHhcNMjYwNzE2MDY0MDA2WhcNNDEwNzE1MDY0
+MDA2WjBzMQswCQYDVQQGEwJFRTEiMCAGA1UECgwZRUUgZUlEIENvbW11bml0eSBU
+ZXN0IFBLSTEXMBUGA1UEYQwOTlRSRUUtMDAwMDAwMDAxJzAlBgNVBAMMHkNPTU1V
+TklUWSBURVNUIG9mIEVFLUdvdkNBMjAxODCBmzAQBgcqhkjOPQIBBgUrgQQAIwOB
+hgAEAHCFSj/zmKvyJNG/amDqS/g5ohxizId5VFHLg8pDaUrePhB2j+8Re06Og5Fx
+RFYSFxQwM58PelDa3hqT4bOluBrIAC6vzJZKWc1H5rxxLeo9P2oDN3e2otmQskHx
+/6YeNRdjBJnP0rQZgTzbn9/sls1Kxv43v+luM4w0SgjGotWBN0l9o4G7MIG4MB0G
+A1UdDgQWBBTnOC5ZuQKn/PbpRmRfwkFhWpbLdTAfBgNVHSMEGDAWgBTnOC5ZuQKn
+/PbpRmRfwkFhWpbLdTASBgNVHRMBAf8ECDAGAQH/AgEBMA4GA1UdDwEB/wQEAwIB
+BjBSBgNVHSAESzBJMAgGBgQAj3oBAjAJBgcEAIvsQAECMDIGCysGAQQBg5EhAQIB
+MCMwIQYIKwYBBQUHAgEWFWh0dHBzOi8vd3d3LnNrLmVlL0NQUzAKBggqhkjOPQQD
+BAOBiwAwgYcCQgDF8YiS4d+WbAeaIth6FtS+L1m4NbyOWKsknY1dy04/dFfhe7PN
+uqELgWYcHcAp4PaVL80DzSmD1POgS1JOJZFoSgJBCuZJ/4xZJc4K6UEkqr9AcfiB
+/0UU4HpyEa2O719SbkajN8Erc19TIKuE1n6C8gMPPHqDyrAhdysMs02eA6yAsgs=
+-----END CERTIFICATE-----

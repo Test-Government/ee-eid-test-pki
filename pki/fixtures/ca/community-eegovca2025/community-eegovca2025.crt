@@ -1,0 +1,62 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            5f:55:87:9b:4e:bc:e8:1a:7b:32:92:5f:91:52:ce:ca:76:ad:6f:7d
+        Signature Algorithm: ecdsa-with-SHA384
+        Issuer: C=EE,O=EE eID Community Test PKI,organizationIdentifier=NTREE-00000000,CN=COMMUNITY Test EEGovCA2025
+        Validity
+            Not Before: Jul 16 06:40:06 2026 GMT
+            Not After : Jul 15 06:40:06 2041 GMT
+        Subject: C=EE,O=EE eID Community Test PKI,organizationIdentifier=NTREE-00000000,CN=COMMUNITY Test EEGovCA2025
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (384 bit)
+                pub:
+                    04:1e:5c:c5:e6:d3:d4:28:e9:ed:e2:57:11:a9:61:
+                    94:f9:e4:cf:ef:b2:27:d1:05:df:fd:9c:57:ab:f4:
+                    ea:1a:dd:bf:93:19:86:f9:ac:4d:fc:22:8d:ca:c9:
+                    fe:e9:3b:1d:3c:8e:d7:fb:e4:21:0b:38:75:6b:8a:
+                    a3:84:40:43:89:d2:34:94:be:9c:83:8c:7e:2e:d3:
+                    e7:50:a6:61:36:e5:1a:a2:46:91:41:84:98:b4:36:
+                    83:fb:f2:81:3c:28:dc
+                ASN1 OID: secp384r1
+                NIST CURVE: P-384
+        X509v3 extensions:
+            X509v3 Subject Key Identifier: 
+                5E:65:FD:CF:37:CD:2A:3D:34:D9:ED:CC:80:87:CF:10:61:21:5A:93
+            X509v3 Authority Key Identifier: 
+                5E:65:FD:CF:37:CD:2A:3D:34:D9:ED:CC:80:87:CF:10:61:21:5A:93
+            X509v3 Basic Constraints: critical
+                CA:TRUE, pathlen:1
+            X509v3 Key Usage: critical
+                Certificate Sign, CRL Sign
+            X509v3 Certificate Policies: 
+                Policy: X509v3 Any Policy
+                  CPS: https://repository-test.eidpki.ee
+    Signature Algorithm: ecdsa-with-SHA384
+    Signature Value:
+        30:64:02:30:6e:7a:12:e1:f5:ff:77:08:fb:8a:95:35:f6:ea:
+        1c:5a:a0:b1:03:2c:1c:ed:7a:1a:a3:7b:f5:d4:9a:1d:c3:e1:
+        88:45:50:10:02:a6:39:a9:d7:5c:0e:2a:97:e9:b9:4f:02:30:
+        78:f3:ff:be:2f:dc:8a:53:05:93:29:91:75:20:16:ee:83:64:
+        28:b5:73:54:e1:b9:b8:88:cd:03:6f:85:ab:ad:98:3f:f7:8f:
+        52:b1:bd:e3:d9:b0:f0:99:13:b4:ec:f4
+
+-----BEGIN CERTIFICATE-----
+MIICyDCCAk+gAwIBAgIUX1WHm0686Bp7MpJfkVLOynatb30wCgYIKoZIzj0EAwMw
+bzELMAkGA1UEBhMCRUUxIjAgBgNVBAoMGUVFIGVJRCBDb21tdW5pdHkgVGVzdCBQ
+S0kxFzAVBgNVBGEMDk5UUkVFLTAwMDAwMDAwMSMwIQYDVQQDDBpDT01NVU5JVFkg
+VGVzdCBFRUdvdkNBMjAyNTAeFw0yNjA3MTYwNjQwMDZaFw00MTA3MTUwNjQwMDZa
+MG8xCzAJBgNVBAYTAkVFMSIwIAYDVQQKDBlFRSBlSUQgQ29tbXVuaXR5IFRlc3Qg
+UEtJMRcwFQYDVQRhDA5OVFJFRS0wMDAwMDAwMDEjMCEGA1UEAwwaQ09NTVVOSVRZ
+IFRlc3QgRUVHb3ZDQTIwMjUwdjAQBgcqhkjOPQIBBgUrgQQAIgNiAAQeXMXm09Qo
+6e3iVxGpYZT55M/vsifRBd/9nFer9Ooa3b+TGYb5rE38Io3Kyf7pOx08jtf75CEL
+OHVriqOEQEOJ0jSUvpyDjH4u0+dQpmE25RqiRpFBhJi0NoP78oE8KNyjgaswgagw
+HQYDVR0OBBYEFF5l/c83zSo9NNntzICHzxBhIVqTMB8GA1UdIwQYMBaAFF5l/c83
+zSo9NNntzICHzxBhIVqTMBIGA1UdEwEB/wQIMAYBAf8CAQEwDgYDVR0PAQH/BAQD
+AgEGMEIGA1UdIAQ7MDkwNwYEVR0gADAvMC0GCCsGAQUFBwIBFiFodHRwczovL3Jl
+cG9zaXRvcnktdGVzdC5laWRwa2kuZWUwCgYIKoZIzj0EAwMDZwAwZAIwbnoS4fX/
+dwj7ipU19uocWqCxAywc7Xoao3v11Jodw+GIRVAQAqY5qddcDiqX6blPAjB48/++
+L9yKUwWTKZF1IBbug2QotXNU4bm4iM0Db4WrrZg/949Ssb3j2bDwmRO07PQ=
+-----END CERTIFICATE-----

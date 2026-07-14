@@ -1,0 +1,21 @@
+# Extensions applied to an intermediate (issuing) CA certificate.
+# Rendered per child intermediate; the revocation URLs point at the PARENT
+# (the issuer), while pathlen/EKU describe the child itself.
+# Passed to the parent's `openssl ca` via -extfile ... -extensions ext_intermediate.
+
+[ ext_intermediate ]
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid:always
+basicConstraints       = critical,CA:true,pathlen:@CHILD_PATHLEN@
+keyUsage               = critical,keyCertSign,cRLSign
+@CHILD_EKU_LINE@
+@CA_POLICIES_LINE@
+crlDistributionPoints  = URI:@PARENT_CRL_URL@
+authorityInfoAccess    = @aia
+
+[ aia ]
+caIssuers;URI.0 = @PARENT_CAISSUER_URL@
+OCSP;URI.0      = @PARENT_OCSP_URL@
+
+# Policy-qualifier sections referenced by @CA_POLICIES_LINE@ (empty if none).
+@CA_POLICIES_SECTIONS@

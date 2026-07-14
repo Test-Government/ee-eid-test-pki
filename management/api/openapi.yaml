@@ -1,0 +1,448 @@
+openapi: 3.0.3
+info:
+  title: ee-eid-test-pki management API
+  version: "1.0.0"
+  description: >
+    Test-only management API for the Estonian eID test PKI: issue / fetch / revoke
+    natural-person leaves, set a leaf's OCSP status (good / revoked / unknown), and
+    simulate OCSP/CRL responder outages.
+
+
+    Responses default to `text/plain`; send `Accept: application/json` for JSON — this
+    spec describes the **JSON** contract. Test-only; unauthenticated.
+
+
+    Mutation payloads go in a JSON request body; resource identifiers are in the path;
+    GET filters/options are query parameters.
+servers:
+  - url: http://localhost:8082
+  - url: http://eid-test-pki:8082
+    description: from a sibling container on the same compose network
+
+security: []   # test-only, unauthenticated
+
+paths:
+  /health:
+    get:
+      summary: Liveness probe
+      operationId: getHealth
+      responses:
+        "200":
+          description: alive
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Health" }
+
+  /cas:
+    get:
+      summary: List CAs and their per-CA OCSP/CRL availability
+      operationId: listCas
+      responses:
+        "200":
+          description: CA list
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CaList" }
+
+  /ocsp:
+    get:
+      summary: Global OCSP availability status
+      operationId: getOcspStatus
+      responses:
+        "200":
+          description: status
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Availability" }
+    put:
+      summary: Toggle the OCSP responder globally (outage simulation)
+      operationId: setOcspAvailability
+      requestBody: { $ref: "#/components/requestBodies/Enabled" }
+      responses:
+        "200":
+          description: new availability
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AvailabilityResult" }
+        "400": { $ref: "#/components/responses/Error" }
+
+  /crl:
+    get:
+      summary: Global CRL availability status
+      operationId: getCrlStatus
+      responses:
+        "200":
+          description: status
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Availability" }
+    put:
+      summary: Toggle CRL serving globally (outage simulation)
+      operationId: setCrlAvailability
+      requestBody: { $ref: "#/components/requestBodies/Enabled" }
+      responses:
+        "200":
+          description: new availability
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AvailabilityResult" }
+        "400": { $ref: "#/components/responses/Error" }
+
+  /cas/{ca}/ocsp:
+    put:
+      summary: Toggle the OCSP responder for one CA
+      operationId: setCaOcspAvailability
+      parameters: [ { $ref: "#/components/parameters/Ca" } ]
+      requestBody: { $ref: "#/components/requestBodies/Enabled" }
+      responses:
+        "200":
+          description: new availability
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AvailabilityResult" }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /cas/{ca}/crl:
+    put:
+      summary: Toggle CRL serving for one CA
+      operationId: setCaCrlAvailability
+      parameters: [ { $ref: "#/components/parameters/Ca" } ]
+      requestBody: { $ref: "#/components/requestBodies/Enabled" }
+      responses:
+        "200":
+          description: new availability
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AvailabilityResult" }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /leaves:
+    get:
+      summary: List issued leaves (optionally filtered by CA)
+      operationId: listLeaves
+      parameters:
+        - name: ca
+          in: query
+          required: false
+          schema: { type: string }
+      responses:
+        "200":
+          description: leaves
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LeafList" }
+
+  /cas/{ca}/leaves:
+    get:
+      summary: List a CA's leaves
+      operationId: listCaLeaves
+      parameters: [ { $ref: "#/components/parameters/IssuingCa" } ]
+      responses:
+        "200":
+          description: leaves
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LeafList" }
+        "404": { $ref: "#/components/responses/Error" }
+    post:
+      summary: Issue a natural-person identity (auth and/or sign leaf)
+      operationId: issueLeaf
+      parameters: [ { $ref: "#/components/parameters/IssuingCa" } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/IssueRequest" }
+      responses:
+        "201":
+          description: issued
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/IssueResult" }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "500": { $ref: "#/components/responses/Error" }
+
+  /cas/{ca}/leaves/{code}/{type}.crt:
+    get:
+      summary: Download a leaf certificate (PEM)
+      operationId: getLeafCert
+      parameters:
+        - { $ref: "#/components/parameters/IssuingCa" }
+        - { $ref: "#/components/parameters/Code" }
+        - { $ref: "#/components/parameters/LeafType" }
+      responses:
+        "200":
+          description: certificate
+          content:
+            application/x-pem-file:
+              schema: { type: string }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /cas/{ca}/leaves/{code}/{type}.p12:
+    get:
+      summary: Download a leaf as PKCS#12
+      operationId: getLeafP12
+      parameters:
+        - { $ref: "#/components/parameters/IssuingCa" }
+        - { $ref: "#/components/parameters/Code" }
+        - { $ref: "#/components/parameters/LeafType" }
+        - name: password
+          in: query
+          required: false
+          description: PKCS#12 export password (default "test")
+          schema: { type: string }
+      responses:
+        "200":
+          description: PKCS#12 keystore
+          content:
+            application/x-pkcs12:
+              schema: { type: string, format: binary }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "500": { $ref: "#/components/responses/Error" }
+
+  /cas/{ca}/leaves/{code}/{type}/status:
+    put:
+      summary: Set a leaf's OCSP status
+      operationId: setLeafStatus
+      parameters:
+        - { $ref: "#/components/parameters/IssuingCa" }
+        - { $ref: "#/components/parameters/Code" }
+        - { $ref: "#/components/parameters/LeafTypeBoth" }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/StatusRequest" }
+      responses:
+        "200":
+          description: updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/StatusResult" }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "500": { $ref: "#/components/responses/Error" }
+
+  /cas/{ca}/revocations:
+    get:
+      summary: List revoked leaves for a CA
+      operationId: listRevocations
+      parameters: [ { $ref: "#/components/parameters/IssuingCa" } ]
+      responses:
+        "200":
+          description: revocations
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RevocationList" }
+        "404": { $ref: "#/components/responses/Error" }
+
+components:
+  parameters:
+    Ca:
+      name: ca
+      in: path
+      required: true
+      description: CA id (any CA — roots and intermediates)
+      schema:
+        type: string
+        enum: [community-eegovca2018, community-esteid2018, community-eegovca2025, community-esteid2025]
+    IssuingCa:
+      name: ca
+      in: path
+      required: true
+      description: Issuing (intermediate) CA id — leaves live under these
+      schema:
+        type: string
+        enum: [community-esteid2018, community-esteid2025]
+    Code:
+      name: code
+      in: path
+      required: true
+      description: Estonian personal code (isikukood)
+      schema: { type: string, pattern: "^[0-9]{11}$" }
+    LeafType:
+      name: type
+      in: path
+      required: true
+      schema: { type: string, enum: [auth, sign] }
+    LeafTypeBoth:
+      name: type
+      in: path
+      required: true
+      schema: { type: string, enum: [auth, sign, both] }
+
+  requestBodies:
+    Enabled:
+      required: true
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/EnabledRequest" }
+
+  responses:
+    Error:
+      description: error
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+
+  schemas:
+    Health:
+      type: object
+      required: [status]
+      properties:
+        status: { type: string, example: ok }
+
+    Ca:
+      type: object
+      required: [id, cn, type, family, parent, key, ocsp, crl]
+      properties:
+        id: { type: string }
+        cn: { type: string }
+        type: { type: string, enum: [root, intermediate] }
+        family: { type: string }
+        parent: { type: string, nullable: true }
+        key:
+          type: object
+          properties:
+            alg: { type: string }
+            param: { type: string }
+        ocsp: { $ref: "#/components/schemas/Enabled" }
+        crl: { $ref: "#/components/schemas/Enabled" }
+    CaList:
+      type: object
+      required: [cas]
+      properties:
+        cas: { type: array, items: { $ref: "#/components/schemas/Ca" } }
+
+    Enabled:
+      type: object
+      properties:
+        enabled: { type: boolean }
+
+    Availability:
+      type: object
+      required: [service, globalDisabled, disabledCas]
+      properties:
+        service: { type: string, enum: [ocsp, crl] }
+        globalDisabled: { type: boolean }
+        disabledCas: { type: array, items: { type: string } }
+    AvailabilityResult:
+      allOf:
+        - { $ref: "#/components/schemas/Availability" }
+        - type: object
+          required: [scope, enabled]
+          properties:
+            scope: { type: string }
+            enabled: { type: boolean }
+
+    Leaf:
+      type: object
+      required: [ca, family, code, serialNumber, surname, givenName, type, certSerial, notAfter, status, download]
+      properties:
+        ca: { type: string }
+        family: { type: string }
+        code: { type: string }
+        serialNumber: { type: string }
+        surname: { type: string }
+        givenName: { type: string }
+        type: { type: string, enum: [auth, sign] }
+        certSerial: { type: string }
+        notAfter: { type: string }
+        status: { type: string, enum: [good, revoked] }   # listing reports good|revoked; "unknown" is settable but removes the row (reported as good)
+        revokedAt: { type: string }
+        revocationReason: { type: string }
+        download:
+          type: object
+          properties:
+            cert: { type: string }
+            p12: { type: string }
+    LeafList:
+      type: object
+      required: [leaves]
+      properties:
+        leaves: { type: array, items: { $ref: "#/components/schemas/Leaf" } }
+
+    IssueRequest:
+      type: object
+      required: [code, surname, given, type]
+      properties:
+        code: { type: string, pattern: "^[0-9]{11}$" }
+        surname: { type: string, minLength: 1 }
+        given: { type: string, minLength: 1 }
+        type: { type: string, enum: [auth, sign, both] }
+        email: { type: string, nullable: true }
+    IssueResult:
+      type: object
+      required: [issued]
+      properties:
+        issued:
+          type: array
+          items:
+            type: object
+            required: [ca, code, type, serialNumber]
+            properties:
+              ca: { type: string }
+              code: { type: string }
+              type: { type: string }
+              serialNumber: { type: string }
+
+    StatusRequest:
+      type: object
+      required: [status]
+      properties:
+        status: { type: string, enum: [good, revoked, unknown] }
+        reason:
+          type: string
+          nullable: true
+          description: CRL reason (only meaningful for status=revoked; null = none)
+          enum: [unspecified, keyCompromise, CACompromise, affiliationChanged, superseded, cessationOfOperation, certificateHold, removeFromCRL, null]
+    StatusResult:
+      type: object
+      required: [updated, crlRefreshed]
+      properties:
+        crlRefreshed: { type: boolean }
+        updated:
+          type: array
+          items:
+            type: object
+            required: [ca, code, type, status]
+            properties:
+              ca: { type: string }
+              code: { type: string }
+              type: { type: string }
+              status: { type: string, enum: [good, revoked, unknown] }
+              reason: { type: string }
+
+    RevocationList:
+      type: object
+      required: [ca, revoked]
+      properties:
+        ca: { type: string }
+        revoked:
+          type: array
+          items:
+            type: object
+            required: [certSerial, serialNumber, revokedAt, revocationReason]
+            properties:
+              certSerial: { type: string }
+              serialNumber: { type: string }
+              revokedAt: { type: string }
+              revocationReason: { type: string, nullable: true }
+
+    EnabledRequest:
+      type: object
+      required: [enabled]
+      properties:
+        enabled: { type: boolean }
+
+    Error:
+      type: object
+      required: [error, status]
+      properties:
+        error: { type: string }
+        status: { type: integer }

@@ -1,0 +1,13 @@
+# Force LF line endings so shell scripts and OpenSSL configs are never checked
+# out as CRLF — CRLF breaks bash (git-bash + Alpine) and the Docker build.
+* text=auto eol=lf
+
+# Explicit for the files that MUST stay LF:
+*.sh        text eol=lf
+*.env       text eol=lf
+*.tmpl      text eol=lf
+*.cnf       text eol=lf
+*.pem       text eol=lf
+*.crt       text eol=lf
+*.key       text eol=lf
+Dockerfile  text eol=lf

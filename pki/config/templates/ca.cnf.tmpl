@@ -1,0 +1,70 @@
+# OpenSSL config for a single CA. Rendered per-CA to <CA_HOME>/ca.cnf.
+# Used both to create this CA's own cert (root self-sign / intermediate CSR)
+# and, via `openssl ca`, to sign the CAs and leaves BELOW it.
+# Tokens @LIKE_THIS@ are substituted by pki/lib/common.sh render_template.
+
+[ ca ]
+default_ca = ca_default
+
+[ ca_default ]
+dir               = @DIR@
+certificate       = $dir/@CA_ID@.crt
+private_key       = $dir/private/@CA_ID@.key
+new_certs_dir     = $dir/certs
+database          = $dir/db/index.txt
+serial            = $dir/db/serial
+crlnumber         = $dir/db/crlnumber
+crl               = $dir/crl/@CA_ID@.crl
+default_md        = @CA_DIGEST@
+default_days      = @CA_DAYS@
+default_crl_days  = 7
+policy            = policy_eid
+email_in_dn       = no
+copy_extensions   = none
+unique_subject    = no
+x509_extensions   = ext_selfsign
+crl_extensions    = ext_crl
+
+# Which subject fields are accepted on things this CA signs.
+# NOTE: `openssl ca` emits the subject DN in THIS section's order, so the
+# ordering here defines the on-wire RDN order. CAs -> C,O,orgId,CN ;
+# natural-person leaves -> C,serialNumber,GN,SN,CN (CN last, per real eID).
+[ policy_eid ]
+countryName            = optional
+organizationName       = optional
+organizationalUnitName = optional
+organizationIdentifier = optional
+serialNumber           = optional
+givenName              = optional
+surname                = optional
+commonName             = supplied
+
+# This CA's own subject (used by `openssl req` for self-sign / CSR).
+[ req ]
+default_bits       = 2048
+default_md         = @CA_DIGEST@
+distinguished_name = req_dn
+prompt             = no
+utf8               = yes
+string_mask        = utf8only
+x509_extensions    = ext_selfsign
+
+[ req_dn ]
+C                      = @ORG_C@
+O                      = @ORG_O@
+organizationIdentifier = @ORG_ORGID@
+CN                     = @CA_CN@
+
+# Extensions stamped onto a self-signed ROOT cert.
+[ ext_selfsign ]
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid:always
+basicConstraints       = critical,CA:true,pathlen:@CA_PATHLEN@
+keyUsage               = critical,keyCertSign,cRLSign
+@CA_POLICIES_LINE@
+
+[ ext_crl ]
+authorityKeyIdentifier = keyid:always
+
+# Policy-qualifier sections referenced by @CA_POLICIES_LINE@ (empty if none).
+@CA_POLICIES_SECTIONS@

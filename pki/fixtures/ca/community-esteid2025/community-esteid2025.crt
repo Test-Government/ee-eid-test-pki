@@ -1,0 +1,73 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 4098 (0x1002)
+        Signature Algorithm: ecdsa-with-SHA384
+        Issuer: C=EE,O=EE eID Community Test PKI,organizationIdentifier=NTREE-00000000,CN=COMMUNITY Test EEGovCA2025
+        Validity
+            Not Before: Jul 16 06:40:07 2026 GMT
+            Not After : Jul 12 06:40:07 2041 GMT
+        Subject: C=EE,O=EE eID Community Test PKI,organizationIdentifier=NTREE-00000000,CN=COMMUNITY Test ESTEID2025
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (384 bit)
+                pub:
+                    04:8d:73:b3:df:de:8e:ba:fb:19:8f:bf:88:f1:78:
+                    0b:07:3e:dd:3f:65:fb:0b:74:09:4b:9e:a7:9e:ec:
+                    eb:3d:33:2b:40:a0:48:52:31:82:77:85:00:45:c8:
+                    7c:83:06:6d:4a:ba:ff:7d:6c:1d:97:e5:42:b1:a1:
+                    c3:ef:d3:b3:b8:fb:8b:3f:3f:0b:b4:b6:18:30:b7:
+                    10:ce:69:c7:96:80:db:30:c2:2d:73:50:31:94:e6:
+                    88:77:03:5c:75:7a:b0
+                ASN1 OID: secp384r1
+                NIST CURVE: P-384
+        X509v3 extensions:
+            X509v3 Subject Key Identifier: 
+                69:90:DB:29:80:86:7C:01:CF:5C:80:5C:20:B0:3B:06:4D:59:B6:FA
+            X509v3 Authority Key Identifier: 
+                5E:65:FD:CF:37:CD:2A:3D:34:D9:ED:CC:80:87:CF:10:61:21:5A:93
+            X509v3 Basic Constraints: critical
+                CA:TRUE, pathlen:0
+            X509v3 Key Usage: critical
+                Certificate Sign, CRL Sign
+            X509v3 Certificate Policies: 
+                Policy: X509v3 Any Policy
+                  CPS: https://repository-test.eidpki.ee
+            X509v3 CRL Distribution Points: 
+                Full Name:
+                  URI:http://host.docker.internal:8080/crl/community-eegovca2025.crl
+
+            Authority Information Access: 
+                CA Issuers - URI:http://host.docker.internal:8080/certs/community-eegovca2025.crt
+                OCSP - URI:http://host.docker.internal:8081/community-eegovca2025
+    Signature Algorithm: ecdsa-with-SHA384
+    Signature Value:
+        30:66:02:31:00:f1:40:81:a7:eb:ba:df:0e:12:84:cf:69:4b:
+        65:be:fb:fe:55:50:95:ac:7e:a4:84:94:10:00:e8:b9:8d:10:
+        e0:84:57:4d:d9:a8:6e:f6:91:ab:7c:ea:e9:6a:97:00:15:02:
+        31:00:b6:0f:d5:c9:2b:7d:fc:7b:bc:fa:75:68:c7:fb:4a:65:
+        78:70:08:4e:40:df:f5:31:0e:e9:2f:c9:88:3f:6b:6d:18:8e:
+        b7:1a:ff:d0:e8:19:74:7c:73:a0:ac:fc:db:0f
+
+-----BEGIN CERTIFICATE-----
+MIIDrzCCAzSgAwIBAgICEAIwCgYIKoZIzj0EAwMwbzELMAkGA1UEBhMCRUUxIjAg
+BgNVBAoMGUVFIGVJRCBDb21tdW5pdHkgVGVzdCBQS0kxFzAVBgNVBGEMDk5UUkVF
+LTAwMDAwMDAwMSMwIQYDVQQDDBpDT01NVU5JVFkgVGVzdCBFRUdvdkNBMjAyNTAe
+Fw0yNjA3MTYwNjQwMDdaFw00MTA3MTIwNjQwMDdaMG4xCzAJBgNVBAYTAkVFMSIw
+IAYDVQQKDBlFRSBlSUQgQ29tbXVuaXR5IFRlc3QgUEtJMRcwFQYDVQRhDA5OVFJF
+RS0wMDAwMDAwMDEiMCAGA1UEAwwZQ09NTVVOSVRZIFRlc3QgRVNURUlEMjAyNTB2
+MBAGByqGSM49AgEGBSuBBAAiA2IABI1zs9/ejrr7GY+/iPF4Cwc+3T9l+wt0CUue
+p57s6z0zK0CgSFIxgneFAEXIfIMGbUq6/31sHZflQrGhw+/Ts7j7iz8/C7S2GDC3
+EM5px5aA2zDCLXNQMZTmiHcDXHV6sKOCAaIwggGeMB0GA1UdDgQWBBRpkNspgIZ8
+Ac9cgFwgsDsGTVm2+jAfBgNVHSMEGDAWgBReZf3PN80qPTTZ7cyAh88QYSFakzAS
+BgNVHRMBAf8ECDAGAQH/AgEAMA4GA1UdDwEB/wQEAwIBBjBCBgNVHSAEOzA5MDcG
+BFUdIAAwLzAtBggrBgEFBQcCARYhaHR0cHM6Ly9yZXBvc2l0b3J5LXRlc3QuZWlk
+cGtpLmVlME8GA1UdHwRIMEYwRKBCoECGPmh0dHA6Ly9ob3N0LmRvY2tlci5pbnRl
+cm5hbDo4MDgwL2NybC9jb21tdW5pdHktZWVnb3ZjYTIwMjUuY3JsMIGiBggrBgEF
+BQcBAQSBlTCBkjBMBggrBgEFBQcwAoZAaHR0cDovL2hvc3QuZG9ja2VyLmludGVy
+bmFsOjgwODAvY2VydHMvY29tbXVuaXR5LWVlZ292Y2EyMDI1LmNydDBCBggrBgEF
+BQcwAYY2aHR0cDovL2hvc3QuZG9ja2VyLmludGVybmFsOjgwODEvY29tbXVuaXR5
+LWVlZ292Y2EyMDI1MAoGCCqGSM49BAMDA2kAMGYCMQDxQIGn67rfDhKEz2lLZb77
+/lVQlax+pISUEADouY0Q4IRXTdmobvaRq3zq6WqXABUCMQC2D9XJK338e7z6dWjH
++0pleHAITkDf9TEO6S/JiD9rbRiOtxr/0OgZdHxzoKz82w8=
+-----END CERTIFICATE-----

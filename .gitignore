@@ -1,0 +1,16 @@
+# Generated PKI material — NEVER commit private keys, certs, or CA databases.
+pki/out/
+
+# Key material anywhere
+*.key
+*.p12
+*.pfx
+
+# Editor / IDE
+.idea/
+
+# EXCEPTION: the pinned TEST CA set is intentionally committed (test-only,
+# non-secret by design) so every build shares one trust anchor. Overridable
+# with FRESH_CA=1 / REGENERATE=1. Re-included despite the *.key rule above.
+!pki/fixtures/
+!pki/fixtures/**
