@@ -358,7 +358,8 @@ container but are lost when it's recreated (e.g. `--rm`) unless you mount a volu
 
 The API is specified in [`management/api/openapi.yaml`](../management/api/openapi.yaml)
 (OpenAPI 3.0, **spec-first** — the durable contract; the bash CGI is an interim
-implementation). Conformance-test a running instance against it:
+implementation). The running container serves this spec at `/openapi.yaml` and an interactive
+**Swagger UI at `/docs`** (both on :8082). Conformance-test a running instance against it:
 
 ```bash
 docker/conformance.sh                                    # fast (~1–2 min); default base http://host.docker.internal:8082

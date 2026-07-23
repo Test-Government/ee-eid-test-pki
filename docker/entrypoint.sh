@@ -171,6 +171,18 @@ server {
     server_name _;
     client_max_body_size 8m;
     access_log /dev/stdout;
+    absolute_redirect off;   # /docs -> /docs/ stays port-agnostic (host port may be mapped)
+
+    # OpenAPI spec + Swagger UI (static, same-origin as the API).
+    location = /openapi.yaml {
+        default_type application/yaml;
+        alias /srv/openapi.yaml;
+    }
+    location = /docs { return 301 /docs/; }
+    location /docs/ {
+        alias /srv/docs/;
+        index index.html;
+    }
 
     location / {
         fastcgi_pass unix:/run/fcgiwrap.sock;

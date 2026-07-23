@@ -33,7 +33,15 @@ ARG APK_MIRROR
 RUN if [ -n "$APK_MIRROR" ]; then \
       sed -i "s|https://dl-cdn.alpinelinux.org/alpine|$APK_MIRROR|g" /etc/apk/repositories; \
     fi && \
-    apk add --no-cache bash openssl
+    apk add --no-cache bash openssl curl
+
+# Swagger UI (static, pinned) fetched at build time so /docs works offline (no runtime CDN).
+ARG SWAGGER_UI_VERSION=5.17.14
+RUN mkdir -p /swagger-ui && cd /swagger-ui && \
+    base="https://cdn.jsdelivr.net/npm/swagger-ui-dist@${SWAGGER_UI_VERSION}" && \
+    for f in swagger-ui.css swagger-ui-bundle.js swagger-ui-standalone-preset.js; do \
+      curl -fsSL "$base/$f" -o "$f"; \
+    done
 
 # Endpoint hostnames baked into the AIA / CRL / OCSP URLs of issued certs.
 ARG PKI_HTTP_BASE=http://host.docker.internal:8080
@@ -80,6 +88,11 @@ COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY management/api/dispatch.sh /usr/local/bin/pki-api.cgi
 RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/pki-api.cgi
 
+# OpenAPI spec + Swagger UI served on :8082 (/openapi.yaml and /docs — see entrypoint.sh).
+COPY --from=builder /swagger-ui /srv/docs
+COPY management/ui/swagger/index.html /srv/docs/index.html
+COPY management/api/openapi.yaml /srv/openapi.yaml
+
 # Re-declare the endpoint bases in this stage and carry them into the runtime
 # ENV so that regeneration at container start (REGENERATE=1, or an empty mounted
 # /pki/out) uses the SAME URLs baked at build — and can be overridden per run,
@@ -91,8 +104,7 @@ ENV PKI_HTTP_BASE=${PKI_HTTP_BASE} \
     PKI_OUT=/pki/out
 EXPOSE 8080 8081 8082
 
-# HTTP (CA certs + CRLs + trust bundles) is the healthcheck target.
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s \
-  CMD wget -qO- http://127.0.0.1:8080/trust/community-roots.pem >/dev/null || exit 1
+HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --start-interval=2s \
+  CMD wget -qO- http://127.0.0.1:8082/health >/dev/null || exit 1
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

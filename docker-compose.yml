@@ -1,5 +1,3 @@
-# Standalone run of the test PKI. From another project, either add a similar
-# service block (see docs/docker.md) or point at the published host ports.
 services:
   eid-test-pki:
     build: .
