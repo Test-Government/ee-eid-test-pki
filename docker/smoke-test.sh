@@ -13,8 +13,9 @@ OCSP="${3:-http://localhost:8081}"
 API="${4:-http://localhost:8082}"
 cd "$OUT"
 
-CAS=(community-eegovca2025 community-esteid2025 community-eegovca2018 community-esteid2018)
-ISSUERS=("community-esteid2025" "community-esteid2018")   # issuing CAs that have leaves
+CAS=(community-eegovca2025 community-esteid2025 community-eegovca2018 community-esteid2018 \
+     community-rootg1e community-eidq2024e community-eidnq2021e)
+ISSUERS=("community-esteid2025" "community-esteid2018")   # issuing CAs with baked leaves (Smart-ID leaves are opt-in, SMARTID_SAMPLE=1)
 
 pass=0; fail=0
 ok()  { echo "  PASS: $1"; pass=$((pass+1)); }

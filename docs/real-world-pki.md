@@ -240,7 +240,7 @@ qualified (**QSCD**) and a non-qualified (**Basic**, LoA substantial) product.
   - **Mobile-ID**: comma-separated name; profile example `MINDAUGAS,BUTKUS` — ⚠ ordering
     (given,surname vs surname,given) differs from ID-card in the docs; **verify against a
     real cert** before fixing our template.
-  - **Smart-ID**: `SURNAME, GIVENNAME` **only** since 2022-05-17 (serialNumber dropped from CN).
+  - **Smart-ID**: `SURNAME,GIVENNAME` (no space) **only** since 2022-05-17 (serialNumber dropped from CN; verified against a real DEMO cert).
 - **No `organizationName`/`OU`** on natural-person leaves (dropped from Mobile-ID 2019-06-05).
 
 ### 4.2 Policy & qcStatement OIDs (quick reference)
@@ -355,6 +355,12 @@ What "close to reality" means concretely, and the deltas from the prototype:
    `COMMUNITY TEST of SK ID Solutions ROOT G1E`). Families:
    `idcard` (→ ESTEID2025 **and** ESTEID2018), `mobileid` (→ EID-Q 2021E),
    `smartid` (→ EID-Q 2024E qualified + EID-NQ 2021E non-qualified).
+   **SK dual-root note (locked decision):** the real SK PKI has **two** parallel roots —
+   `ROOT G1E` (ECC, *active*) and `ROOT G1R` (RSA-4096, *backup, not issuing*) — with `E`/`R`
+   variants of every issuer (§2). We deliberately reproduce **only the active ECC chain**
+   (`ROOT G1E` + the `*E` issuers), the path live Mobile-ID/Smart-ID certificates actually
+   validate against; the RSA backup root and `*R` issuers are omitted. Add `ROOT G1R` (and the
+   `*R` issuers) only if a system under test pins the SK RSA backup root in its truststore.
 2. **Fix the auth `keyUsage`.** ID-card auth = `digitalSignature, keyAgreement` (prototype
    wrongly used `keyEncipherment`). Mobile-ID & Smart-ID auth = `digitalSignature` only.
 3. **Add the signature (QES) cert** — the currently-missing half of every identity:

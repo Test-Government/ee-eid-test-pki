@@ -15,18 +15,18 @@ the authoritative build order and cert-profile details live in
 - **Management API** (:8082) — toggle OCSP/CRL, issue / fetch / revoke leaves, set per-leaf
   OCSP status; spec-first ([`management/api/openapi.yaml`](../management/api/openapi.yaml)) and
   conformance-tested with Schemathesis ([`docker/conformance.sh`](../docker/conformance.sh)).
+- **Smart-ID family** — chain B (SK `ROOT G1E → EID-Q 2024E` qualified + `EID-NQ 2021E`
+  non-qualified), RSA-6144 leaves with the custom auth EKU `1.3.6.1.4.1.62306.5.7.0`, SAN
+  account number, qcStatements on qualified-sign only; SK OIDs kept real (§4.2). Default image
+  ships the CAs; sample leaves are opt-in (`SMARTID_SAMPLE=1` — RSA-6144 keygen is slow).
+  Verified against §3.3.
 
 ## Planned — eID means
 
-### Smart-ID
-Qualified + non-qualified identities under `EID-Q 2024E` / `EID-NQ 2021E`, RSA-6144, with the
-custom auth EKU `1.3.6.1.4.1.62306.5.7.0`. Next in the build order.
-
 ### Mobile-ID
-Identities under `EID-Q 2021E`, EC P-256, no EKU. After Smart-ID.
-
-Both hang off the SK `ROOT G1E → EID-Q / EID-NQ` hierarchy — see
-[`docs/real-world-pki.md`](real-world-pki.md) for the exact profiles.
+Identities under `EID-Q 2021E`, EC P-256, no EKU (no SAN). Next in the build order — reuses
+chain B's `ROOT G1E` (already built for Smart-ID); adds the `EID-Q 2021E` issuer and a
+`mobileid` leaf profile. See [`docs/real-world-pki.md §3.2`](real-world-pki.md) for the profile.
 
 ## Planned — infrastructure & fidelity
 

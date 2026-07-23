@@ -1,0 +1,77 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 4098 (0x1002)
+        Signature Algorithm: ecdsa-with-SHA512
+        Issuer: C=EE,O=EE eID Community Test PKI,organizationIdentifier=NTREE-00000000,CN=COMMUNITY TEST of SK ID Solutions ROOT G1E
+        Validity
+            Not Before: Jul 23 06:37:17 2026 GMT
+            Not After : Jul 19 06:37:17 2041 GMT
+        Subject: C=EE,O=EE eID Community Test PKI,organizationIdentifier=NTREE-00000000,CN=COMMUNITY TEST of SK ID Solutions EID-Q 2024E
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (384 bit)
+                pub:
+                    04:2a:2b:0f:37:df:27:30:5d:fa:1b:21:aa:f2:7d:
+                    52:8e:27:4f:ff:69:25:1a:b7:24:78:01:a0:c0:ce:
+                    78:62:0a:c2:77:36:67:cc:48:e8:c5:e1:58:80:2f:
+                    21:b6:c5:9c:1a:67:94:9e:a2:f3:5e:a2:58:bf:63:
+                    3f:e8:fb:3e:dd:13:89:77:9b:51:9d:ef:fd:f4:b2:
+                    61:1c:35:9d:52:46:a6:b3:e0:a4:8a:ec:bb:ef:a7:
+                    06:ed:78:3e:65:98:cb
+                ASN1 OID: secp384r1
+                NIST CURVE: P-384
+        X509v3 extensions:
+            X509v3 Subject Key Identifier: 
+                13:22:71:72:6C:11:4F:D9:FD:74:7E:6D:3E:DF:9F:DC:6D:F0:52:75
+            X509v3 Authority Key Identifier: 
+                7C:2C:7C:14:B4:27:60:63:BF:2E:D4:EC:D2:2E:12:80:22:12:6A:BE
+            X509v3 Basic Constraints: critical
+                CA:TRUE, pathlen:0
+            X509v3 Key Usage: critical
+                Certificate Sign, CRL Sign
+            X509v3 Certificate Policies: 
+                Policy: X509v3 Any Policy
+                  CPS: https://www.skidsolutions.eu/repository/CPS
+            X509v3 CRL Distribution Points: 
+                Full Name:
+                  URI:http://host.docker.internal:8080/crl/community-rootg1e.crl
+
+            Authority Information Access: 
+                CA Issuers - URI:http://host.docker.internal:8080/certs/community-rootg1e.crt
+                OCSP - URI:http://host.docker.internal:8081/community-rootg1e
+    Signature Algorithm: ecdsa-with-SHA512
+    Signature Value:
+        30:81:87:02:41:4e:f7:d2:d9:25:65:a2:ae:47:c8:3f:de:4c:
+        66:30:42:23:eb:58:57:9d:7b:b2:d5:6f:c5:9c:ee:1e:69:51:
+        b2:88:b6:6d:10:35:ad:5f:04:ff:ad:a6:6f:47:dc:6d:ab:a6:
+        cd:14:39:d4:80:82:2b:c2:e7:5b:d7:a0:8f:ff:db:b5:02:42:
+        00:81:6c:0a:1d:e8:63:6a:99:b2:f3:f0:a8:7f:20:f6:dc:7c:
+        a1:83:fd:6f:16:2d:3e:58:d5:6f:cd:5d:c6:2a:85:67:f0:38:
+        b1:d4:69:7a:21:42:ab:f1:7a:21:73:9d:67:43:ee:6b:76:9d:
+        86:f0:e0:ec:75:b4:c4:fc:15:ba:69:b5
+
+-----BEGIN CERTIFICATE-----
+MIID9TCCA1egAwIBAgICEAIwCgYIKoZIzj0EAwQwfzELMAkGA1UEBhMCRUUxIjAg
+BgNVBAoMGUVFIGVJRCBDb21tdW5pdHkgVGVzdCBQS0kxFzAVBgNVBGEMDk5UUkVF
+LTAwMDAwMDAwMTMwMQYDVQQDDCpDT01NVU5JVFkgVEVTVCBvZiBTSyBJRCBTb2x1
+dGlvbnMgUk9PVCBHMUUwHhcNMjYwNzIzMDYzNzE3WhcNNDEwNzE5MDYzNzE3WjCB
+gjELMAkGA1UEBhMCRUUxIjAgBgNVBAoMGUVFIGVJRCBDb21tdW5pdHkgVGVzdCBQ
+S0kxFzAVBgNVBGEMDk5UUkVFLTAwMDAwMDAwMTYwNAYDVQQDDC1DT01NVU5JVFkg
+VEVTVCBvZiBTSyBJRCBTb2x1dGlvbnMgRUlELVEgMjAyNEUwdjAQBgcqhkjOPQIB
+BgUrgQQAIgNiAAQqKw833ycwXfobIaryfVKOJ0//aSUatyR4AaDAznhiCsJ3NmfM
+SOjF4ViALyG2xZwaZ5SeovNeoli/Yz/o+z7dE4l3m1Gd7/30smEcNZ1SRqaz4KSK
+7LvvpwbteD5lmMujggGgMIIBnDAdBgNVHQ4EFgQUEyJxcmwRT9n9dH5tPt+f3G3w
+UnUwHwYDVR0jBBgwFoAUfCx8FLQnYGO/LtTs0i4SgCISar4wEgYDVR0TAQH/BAgw
+BgEB/wIBADAOBgNVHQ8BAf8EBAMCAQYwTAYDVR0gBEUwQzBBBgRVHSAAMDkwNwYI
+KwYBBQUHAgEWK2h0dHBzOi8vd3d3LnNraWRzb2x1dGlvbnMuZXUvcmVwb3NpdG9y
+eS9DUFMwSwYDVR0fBEQwQjBAoD6gPIY6aHR0cDovL2hvc3QuZG9ja2VyLmludGVy
+bmFsOjgwODAvY3JsL2NvbW11bml0eS1yb290ZzFlLmNybDCBmgYIKwYBBQUHAQEE
+gY0wgYowSAYIKwYBBQUHMAKGPGh0dHA6Ly9ob3N0LmRvY2tlci5pbnRlcm5hbDo4
+MDgwL2NlcnRzL2NvbW11bml0eS1yb290ZzFlLmNydDA+BggrBgEFBQcwAYYyaHR0
+cDovL2hvc3QuZG9ja2VyLmludGVybmFsOjgwODEvY29tbXVuaXR5LXJvb3RnMWUw
+CgYIKoZIzj0EAwQDgYsAMIGHAkFO99LZJWWirkfIP95MZjBCI+tYV517stVvxZzu
+HmlRsoi2bRA1rV8E/62mb0fcbaumzRQ51ICCK8LnW9egj//btQJCAIFsCh3oY2qZ
+svPwqH8g9tx8oYP9bxYtPljVb81dxiqFZ/A4sdRpeiFCq/F6IXOdZ0Pua3adhvDg
+7HW0xPwVumm1
+-----END CERTIFICATE-----

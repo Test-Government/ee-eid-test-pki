@@ -22,6 +22,8 @@
 #   GET  /cas/{ca}/leaves/{code}/{type}.p12 [?password] download PKCS#12 (default pass "test")
 #   PUT  /cas/{ca}/leaves/{code}/{type}/status  {status,reason?}   set OCSP status good|revoked|unknown
 #   GET  /cas/{ca}/revocations                          list revoked entries
+#   Leaf endpoints (issue / .crt / .p12 / status) accept ?country=<CC> (default EE) — the
+#   ETSI PNO<CC>- serialNumber prefix + subject C. Smart-ID spans EE/LV/LT/BE.
 #
 # NB: intentionally does NOT `set -e` / source common.sh — a CGI must always emit
 # headers, so errors are handled explicitly. gen-*.sh run as subprocesses (their
@@ -89,7 +91,17 @@ qs_get() {  # qs_get <key> -> decoded query value ("" if absent)
   IFS="$oldIFS"; set +f
 }
 sane() { printf '%s' "${1:-}" | tr -cd 'A-Za-z0-9._-'; }
-valid_code() { [[ "$1" =~ ^[0-9]{11}$ ]]; }   # ETSI PNOEE personal code = 11 digits
+valid_code() { [[ "$1" =~ ^[0-9]{11}$ ]]; }   # personal code = 11 digits (EE/LV/LT)
+# Country of the identity (ETSI PNO<CC>- prefix). Default EE only when ?country= is
+# ABSENT; a present-but-invalid value (empty / not ^[A-Z]{2}$) falls through to
+# valid_country -> 400, rather than being silently coerced to EE.
+get_country() {
+  case "&${QUERY_STRING:-}" in
+    *"&country="*) qs_get country ;;   # present (maybe empty) -> validate strictly
+    *)             printf 'EE' ;;       # absent -> default
+  esac
+}
+valid_country() { [[ "$1" =~ ^[A-Z]{2}$ ]]; }   # 2-letter ISO code (EE/LV/LT/BE/…)
 # Strip CONF-breaking bytes from free-text DN fields ($ / newlines / # / \).
 clean_text() { printf '%s' "${1:-}" | tr -d '$#\\\r\n'; }
 
@@ -97,7 +109,7 @@ clean_text() { printf '%s' "${1:-}" | tr -d '$#\\\r\n'; }
 ca_exists()  { [ -f "$CA_CFG/$1.env" ]; }
 ca_issuing() { ca_exists "$1" && [ "$(cfg_get "$CA_CFG/$1.env" CA_TYPE)" = intermediate ]; }  # leaves live under issuing (intermediate) CAs
 ca_family()  { cfg_get "$CA_CFG/$1.env" CA_FAMILY | tr -d ' '; }   # reuses cfg_get (defined below)
-leaf_dir()   { echo "$OUT/leaves/$(ca_family "$1")/$1/PNOEE-$2"; }
+leaf_dir()   { echo "$OUT/leaves/$(ca_family "$1")/$1/PNO${3:-EE}-$2"; }   # <ca> <code> [country]
 cfg_get()    { sed -n "s/^$2=\"\{0,1\}\([^\"#]*\)\"\{0,1\}.*/\1/p" "$1" | head -1; }
 
 svc_dir()             { case "$1" in ocsp) printf '%s' "$FLAGS_OCSP";; crl) printf '%s' "$FLAGS_CRL";; esac; }
@@ -134,9 +146,10 @@ leaf_status() {  # <ca> <certSerial> -> "V" | "R<TAB>date[,reason]"
   awk -F'\t' -v s="$2" 'toupper($4)==toupper(s){print $1"\t"$3; f=1} END{if(!f) print "V"}' "$idx"
 }
 
-leaf_obj() {  # <ca> <family> <code> <type> <crt> -> compact JSON
-  local ca="$1" family="$2" code="$3" type="$4" crt="$5"
-  local subj sn gn serial notafter row st status rdate reason
+leaf_obj() {  # <ca> <family> <code> <type> <crt> [country] -> compact JSON
+  local ca="$1" family="$2" code="$3" type="$4" crt="$5" country="${6:-EE}"
+  local subj sn gn serial notafter row st status rdate reason q=""
+  [ "$country" != EE ] && q="?country=$country"   # non-EE download links carry the country
   subj="$(openssl x509 -in "$crt" -noout -nameopt sep_multiline,lname,utf8 -subject 2>/dev/null)"
   sn="$(printf '%s\n' "$subj" | sed -n 's/^[[:space:]]*surname=//p'   | head -1)"
   gn="$(printf '%s\n' "$subj" | sed -n 's/^[[:space:]]*givenName=//p' | head -1)"
@@ -146,15 +159,15 @@ leaf_obj() {  # <ca> <family> <code> <type> <crt> -> compact JSON
   if [ "$st" = "R" ]; then
     status=revoked; rdate="$(printf '%s' "$row" | cut -f2 | cut -d, -f1)"; reason="$(printf '%s' "$row" | cut -f2 | cut -s -d, -f2)"
   else status=good; rdate=""; reason=""; fi
-  jq -nc --arg ca "$ca" --arg family "$family" --arg code "$code" --arg type "$type" \
+  jq -nc --arg ca "$ca" --arg family "$family" --arg country "$country" --arg code "$code" --arg type "$type" \
     --arg sn "$sn" --arg gn "$gn" --arg serial "$serial" --arg notafter "$notafter" \
-    --arg status "$status" --arg rdate "$rdate" --arg reason "$reason" \
-    '{ca:$ca, family:$family, code:$code, serialNumber:("PNOEE-"+$code),
+    --arg status "$status" --arg rdate "$rdate" --arg reason "$reason" --arg q "$q" \
+    '{ca:$ca, family:$family, country:$country, code:$code, serialNumber:("PNO"+$country+"-"+$code),
       surname:$sn, givenName:$gn, type:$type, certSerial:$serial, notAfter:$notafter, status:$status}
      + (if $rdate=="" then {} else {revokedAt:$rdate} end)
      + (if $reason=="" then {} else {revocationReason:$reason} end)
-     + {download:{cert:("/cas/"+$ca+"/leaves/"+$code+"/"+$type+".crt"),
-                  p12:("/cas/"+$ca+"/leaves/"+$code+"/"+$type+".p12")}}'
+     + {download:{cert:("/cas/"+$ca+"/leaves/"+$code+"/"+$type+".crt"+$q),
+                  p12:("/cas/"+$ca+"/leaves/"+$code+"/"+$type+".p12"+$q)}}'
 }
 
 # --- handlers ---------------------------------------------------------------
@@ -219,27 +232,30 @@ set_availability() {  # set_availability <ocsp|crl> <ca-or-empty>  (PUT {enabled
 }
 
 list_leaves() {  # list_leaves <ca-filter-or-empty>
-  local ca="$1" f rel family caid base stem type code objs=()
-  for f in "$OUT"/leaves/*/*/PNOEE-*/PNOEE-*.crt; do
+  local ca="$1" f rel family caid base stem type idpart country code objs=()
+  for f in "$OUT"/leaves/*/*/PNO*-*/PNO*-*.crt; do
     [ -e "$f" ] || continue
     rel="${f#"$OUT"/leaves/}"; family="${rel%%/*}"
     caid="${rel#*/}"; caid="${caid%%/*}"
     [ -n "$ca" ] && [ "$caid" != "$ca" ] && continue
-    base="${f##*/}"; stem="${base%.crt}"; type="${stem##*-}"; code="${stem%-*}"; code="${code#PNOEE-}"
-    objs+=("$(leaf_obj "$caid" "$family" "$code" "$type" "$f")")
+    base="${f##*/}"; stem="${base%.crt}"                 # PNO<CC>-<code>-<type>
+    type="${stem##*-}"; idpart="${stem%-*}"              # type ; PNO<CC>-<code>
+    country="${idpart%%-*}"; country="${country#PNO}"     # <CC>
+    code="${idpart#*-}"                                   # <code>
+    objs+=("$(leaf_obj "$caid" "$family" "$code" "$type" "$f" "$country")")
   done
   if want_json; then
     hdr "200 OK" "application/json"; { [ ${#objs[@]} -gt 0 ] && printf '%s\n' "${objs[@]}" || true; } | jq -s '{leaves: .}'
   else
     hdr "200 OK" "text/plain"; printf 'leaves:\n'
-    [ ${#objs[@]} -gt 0 ] && printf '%s\n' "${objs[@]}" | jq -r '"  \(.ca)/PNOEE-\(.code)-\(.type)  \(.surname),\(.givenName)  [\(.status)]"'
+    [ ${#objs[@]} -gt 0 ] && printf '%s\n' "${objs[@]}" | jq -r '"  \(.ca)/\(.serialNumber)-\(.type)  \(.surname),\(.givenName)  [\(.status)]"'
   fi
 }
 
 list_ca_leaves() { ca_issuing "$1" || { notfound "no such issuing CA: $1"; return; }; list_leaves "$1"; }
 
-do_issue() {  # do_issue <ca>  (POST {code,surname,given,type,email?})
-  local ca="$1" code surname given type email t rc out issued=() names=""
+do_issue() {  # do_issue <ca>  (POST {code,surname,given,type,email?}, ?country=)
+  local ca="$1" code surname given type email country t rc out issued=() names=""
   ca_issuing "$ca" || { notfound "no such issuing CA: $ca"; return; }
   body_ok || { bad "invalid JSON body"; return; }
   printf '%s' "$BODY" | jq -e '((.code|type)=="string") and ((.surname|type)=="string") and ((.given|type)=="string") and ((.type|type)=="string") and ((.email==null) or ((.email|type)=="string"))' >/dev/null 2>&1 \
@@ -248,13 +264,15 @@ do_issue() {  # do_issue <ca>  (POST {code,surname,given,type,email?})
   given="$(clean_text "$(body_field given)")"; type="$(body_field type)"; email="$(clean_text "$(body_field email)")"
   [ -n "$surname" ] && [ -n "$given" ] || { bad "body needs code, surname, given, type"; return; }
   valid_code "$code" || { bad "code must be 11 digits"; return; }
+  country="$(get_country)"; valid_country "$country" || { bad "country must be a 2-letter uppercase ISO code"; return; }
   case "$type" in auth|sign) set -- "$type";; both) set -- auth sign;; *) bad "type must be auth|sign|both"; return;; esac
   for t in "$@"; do
-    # gen-leaf.sh takes an optional 6th arg (email); ${email:+"$email"} passes it only when non-empty.
-    out="$(cd "$OUT" && bash "$SCRIPTS/gen-leaf.sh" "$ca" "$code" "$surname" "$given" "$t" ${email:+"$email"} 2>&1)"; rc=$?
+    # PERSON_C sets the leaf's country (subject C + PNO<CC>- serialNumber). gen-leaf's
+    # optional 6th arg (email); ${email:+"$email"} passes it only when non-empty.
+    out="$(cd "$OUT" && PERSON_C="$country" bash "$SCRIPTS/gen-leaf.sh" "$ca" "$code" "$surname" "$given" "$t" ${email:+"$email"} 2>&1)"; rc=$?
     [ "$rc" -eq 0 ] || { printf '[api] gen-leaf %s %s failed: %s\n' "$ca" "$t" "$out" >&2; err "issue failed for $t (see container log)"; return; }
-    issued+=("$(jq -nc --arg ca "$ca" --arg code "$code" --arg type "$t" '{ca:$ca, code:$code, type:$type, serialNumber:("PNOEE-"+$code)}')")
-    names="$names PNOEE-$code-$t.crt"
+    issued+=("$(jq -nc --arg ca "$ca" --arg cc "$country" --arg code "$code" --arg type "$t" '{ca:$ca, country:$cc, code:$code, type:$type, serialNumber:("PNO"+$cc+"-"+$code)}')")
+    names="$names PNO$country-$code-$t.crt"
   done
   # New leaves are only in the CA index; queue a responder reload (openssl caches
   # the index at startup) so OCSP answers good instead of unknown.
@@ -266,11 +284,12 @@ do_issue() {  # do_issue <ca>  (POST {code,surname,given,type,email?})
   fi
 }
 
-set_leaf_status() {  # set_leaf_status <ca> <code> <type>  (PUT {status,reason?})
-  local ca="$1" code type="$3" status reason t crt serial revinfo out dir results=() rtext=""
+set_leaf_status() {  # set_leaf_status <ca> <code> <type>  (PUT {status,reason?}, ?country=)
+  local ca="$1" code type="$3" status reason country t crt serial revinfo out dir results=() rtext=""
   code="$2"
   ca_issuing "$ca" || { notfound "no such issuing CA: $ca"; return; }
   valid_code "$code" || { bad "code must be 11 digits"; return; }
+  country="$(get_country)"; valid_country "$country" || { bad "country must be a 2-letter uppercase ISO code"; return; }
   body_ok || { bad "invalid JSON body"; return; }
   printf '%s' "$BODY" | jq -e '((.status|type)=="string") and ((.reason==null) or ((.reason|type)=="string"))' >/dev/null 2>&1 \
     || { bad "status must be a string (reason too, if present)"; return; }
@@ -284,15 +303,15 @@ set_leaf_status() {  # set_leaf_status <ca> <code> <type>  (PUT {status,reason?}
   fi
   revinfo=""
   [ "$status" = revoked ] && revinfo="$(date -u +%y%m%d%H%M%SZ)${reason:+,$reason}"
-  dir="$(leaf_dir "$ca" "$code")"
+  dir="$(leaf_dir "$ca" "$code" "$country")"
   for t in "$@"; do
-    crt="$dir/PNOEE-$code-$t.crt"
-    [ -f "$crt" ] || { notfound "no such leaf: PNOEE-$code-$t (ca $ca)"; return; }
+    crt="$dir/PNO$country-$code-$t.crt"
+    [ -f "$crt" ] || { notfound "no such leaf: PNO$country-$code-$t (ca $ca)"; return; }
     serial="$(openssl x509 -in "$crt" -noout -serial 2>/dev/null | sed 's/^serial=//')"
     _idx_set "$ca" "$serial" "$status" "$revinfo"
-    results+=("$(jq -nc --arg ca "$ca" --arg code "$code" --arg type "$t" --arg st "$status" --arg r "$reason" \
-      '{ca:$ca, code:$code, type:$type, status:$st} + (if ($st=="revoked" and $r!="") then {reason:$r} else {} end)')")
-    rtext="$rtext PNOEE-$code-$t=$status"
+    results+=("$(jq -nc --arg ca "$ca" --arg cc "$country" --arg code "$code" --arg type "$t" --arg st "$status" --arg r "$reason" \
+      '{ca:$ca, country:$cc, code:$code, type:$type, status:$st} + (if ($st=="revoked" and $r!="") then {reason:$r} else {} end)')")
+    rtext="$rtext PNO$country-$code-$t=$status"
   done
   out="$(cd "$OUT" && bash "$SCRIPTS/gen-crl.sh" "$ca" 2>&1)" || { err "gen-crl failed: $out"; return; }
   mkdir -p "$OCSPD"; : >"$OCSPD/$ca.reload"
@@ -310,7 +329,7 @@ list_revocations() {  # list_revocations <ca>
   if want_json; then
     hdr "200 OK" "application/json"
     if [ -f "$idx" ]; then
-      awk -F'\t' '$1=="R"{ sn=""; if (match($6,/serialNumber=PNOEE-[0-9]+/)) sn=substr($6,RSTART+13,RLENGTH-13); print $4"\t"$3"\t"sn }' "$idx" \
+      awk -F'\t' '$1=="R"{ sn=""; if (match($6,/serialNumber=PNO[A-Z][A-Z]-[0-9]+/)) sn=substr($6,RSTART+13,RLENGTH-13); print $4"\t"$3"\t"sn }' "$idx" \
         | jq -R 'split("\t") | {certSerial:.[0], serialNumber:.[2], revokedAt:(.[1]|split(",")[0]), revocationReason:((.[1]|split(",")[1]) // null)}' \
         | jq -s --arg ca "$ca" '{ca:$ca, revoked:.}'
     else jq -n --arg ca "$ca" '{ca:$ca, revoked:[]}'; fi
@@ -321,25 +340,26 @@ list_revocations() {  # list_revocations <ca>
   fi
 }
 
-fetch_leaf() {  # fetch_leaf <ca> <code> <type.ext>   (GET download)
-  local ca="$1" code type file ext crt pw p12 out rc dir
+fetch_leaf() {  # fetch_leaf <ca> <code> <type.ext>   (GET download, ?country=)
+  local ca="$1" code type file ext crt pw p12 out rc dir country
   code="$2"; file="$3"; type="${file%.*}"; ext="${file##*.}"
   ca_issuing "$ca" || { notfound "no such issuing CA: $ca"; return; }
   valid_code "$code" || { bad "code must be 11 digits"; return; }
+  country="$(get_country)"; valid_country "$country" || { bad "country must be a 2-letter uppercase ISO code"; return; }
   case "$type" in auth|sign) ;; *) bad "type must be auth or sign"; return;; esac
-  dir="$(leaf_dir "$ca" "$code")"
+  dir="$(leaf_dir "$ca" "$code" "$country")"
   case "$ext" in
     crt)
-      crt="$dir/PNOEE-$code-$type.crt"
+      crt="$dir/PNO$country-$code-$type.crt"
       [ -f "$crt" ] || { notfound "no such leaf cert"; return; }
-      hdr "200 OK" "application/x-pem-file" "Content-Disposition: attachment; filename=PNOEE-$code-$type.crt"; cat "$crt" ;;
+      hdr "200 OK" "application/x-pem-file" "Content-Disposition: attachment; filename=PNO$country-$code-$type.crt"; cat "$crt" ;;
     p12)
       pw="$(qs_get password)"; [ -n "$pw" ] || pw="test"
-      [ -f "$dir/PNOEE-$code-$type.crt" ] || { notfound "no such leaf; issue it first"; return; }
-      out="$(cd "$OUT" && bash "$SCRIPTS/gen-p12.sh" "$ca" "$code" "$type" "$pw" 2>&1)"; rc=$?
+      [ -f "$dir/PNO$country-$code-$type.crt" ] || { notfound "no such leaf; issue it first"; return; }
+      out="$(cd "$OUT" && PERSON_C="$country" bash "$SCRIPTS/gen-p12.sh" "$ca" "$code" "$type" "$pw" 2>&1)"; rc=$?
       [ "$rc" -eq 0 ] || { err "gen-p12 failed: $out"; return; }
-      p12="$dir/PNOEE-$code-$type.p12"
-      hdr "200 OK" "application/x-pkcs12" "Content-Disposition: attachment; filename=PNOEE-$code-$type.p12"; cat "$p12" ;;
+      p12="$dir/PNO$country-$code-$type.p12"
+      hdr "200 OK" "application/x-pkcs12" "Content-Disposition: attachment; filename=PNO$country-$code-$type.p12"; cat "$p12" ;;
     *) bad "unsupported extension: $ext (use .crt or .p12)" ;;
   esac
 }
@@ -365,6 +385,7 @@ ee-eid-test-pki management API   (append ?format=json or send Accept: applicatio
   GET  /cas/{ca}/leaves/{code}/{type}.crt | .p12 [?password]
   PUT  /cas/{ca}/leaves/{code}/{type}/status  {status:good|revoked|unknown, reason?}
   GET  /cas/{ca}/revocations
+  (issue / .crt / .p12 / status take ?country=<CC>, default EE — the PNO<CC>- prefix)
 EOF
 }
 

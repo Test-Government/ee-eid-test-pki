@@ -3,7 +3,8 @@
 #   gen-p12.sh <issuer-ca-id> <personal-code> <auth|sign> [password]
 # Example:
 #   gen-p12.sh community-esteid2025 38910239121 sign
-# Writes  <leaf-dir>/PNOEE-<code>-<type>.p12  next to the leaf key/cert.
+# Writes  <leaf-dir>/PNO<CC>-<code>-<type>.p12  next to the leaf key/cert
+# (CC from PERSON_C, default EE — must match how gen-leaf.sh issued the leaf).
 #
 # Password defaults to "test" (many consumers reject an empty PKCS#12 password).
 # Set P12_LEGACY=1 for RC2/3DES encryption when importing into old stacks
@@ -20,7 +21,7 @@ cd_out
 load_ca "$issuer"
 [ "$CA_TYPE" = "intermediate" ] || die "'$issuer' is not an issuing CA"
 
-serialnr="PNOEE-$code"
+serialnr="PNO${PERSON_C}-$code"   # CC from PERSON_C (default EE)
 leaf_dir="leaves/$CA_FAMILY/$CA_ID/$serialnr"
 key="$leaf_dir/private/$serialnr-$type.key"
 crt="$leaf_dir/$serialnr-$type.crt"

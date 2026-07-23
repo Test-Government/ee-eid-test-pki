@@ -26,6 +26,11 @@ CPS.1            = https://www.sk.ee/CPS" ;;
     ca_policies_sections="[ ca_pol_any ]
 policyIdentifier = 2.5.29.32.0
 CPS.1            = https://repository-test.eidpki.ee" ;;
+  sk)
+    ca_policies_line="certificatePolicies    = @ca_pol_any"
+    ca_policies_sections="[ ca_pol_any ]
+policyIdentifier = 2.5.29.32.0
+CPS.1            = https://www.skidsolutions.eu/repository/CPS" ;;
 esac
 
 render_template "$TEMPLATE_DIR/ca.cnf.tmpl" "$CA_HOME/ca.cnf" \

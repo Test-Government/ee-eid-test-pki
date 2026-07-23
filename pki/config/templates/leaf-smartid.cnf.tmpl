@@ -1,0 +1,106 @@
+# OpenSSL config for a Smart-ID natural-person leaf (SK EID-Q / EID-NQ chain).
+# Rendered per leaf; carries the person's DN, the Smart-ID account number (SAN),
+# and the issuer's URLs. Signed via `openssl ca -extfile <this> -extensions ext_auth|ext_sign`.
+# Profile per docs §3.3: RSA key, custom auth EKU, SAN = DirectoryName(account no),
+# NO qcStatements on auth; qcStatements on the QUALIFIED sign cert only.
+
+[ req ]
+default_bits       = 2048
+distinguished_name = req_dn
+prompt             = no
+utf8               = yes
+string_mask        = utf8only
+
+# Natural-person subject. serialNumber = ETSI EN 319 412-1 PNOEE- form; CN is
+# "SURNAME, GIVENNAME" only — Smart-ID dropped the personal code from CN in 2022 (§4.1).
+[ req_dn ]
+C            = @P_C@
+serialNumber = @P_SERIALNUMBER@
+givenName    = @P_GIVENNAME@
+surname      = @P_SURNAME@
+CN           = @P_CN@
+
+# --- Authentication certificate -------------------------------------------
+[ ext_auth ]
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid:always
+basicConstraints       = CA:false
+keyUsage               = critical,digitalSignature
+extendedKeyUsage       = @LEAF_AUTH_EKU_OID@
+certificatePolicies    = @POLICIES_AUTH@
+@SDA_LINE@
+@CDP_LINE_AUTH@
+authorityInfoAccess    = @aia
+subjectAltName         = @san_dir
+
+# --- Signature (QES) certificate ------------------------------------------
+[ ext_sign ]
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid:always
+basicConstraints       = CA:false
+keyUsage               = critical,nonRepudiation
+certificatePolicies    = @POLICIES_SIGN@
+@SDA_LINE@
+@CDP_LINE_SIGN@
+authorityInfoAccess    = @aia
+subjectAltName         = @san_dir
+@QC_SIGN_LINE@
+
+# --- Shared sections -------------------------------------------------------
+[ aia ]
+caIssuers;URI.0 = @ISSUER_CAISSUER_URL@
+OCSP;URI.0      = @ISSUER_OCSP_URL@
+
+# Smart-ID mandates a SAN DirectoryName carrying the account/document number.
+[ san_dir ]
+dirName = sid_dir
+[ sid_dir ]
+CN = @P_SID_ACCOUNT@
+
+# certificatePolicies building blocks (gen-leaf.sh selects which apply):
+#   qualified   auth = NCP+ + SK ; sign = QCP-n-qSCD + SK
+#   non-qual  auth/sign = NCP + SK
+[ pol_ncp ]
+policyIdentifier = 0.4.0.2042.1.1
+[ pol_ncpplus ]
+policyIdentifier = 0.4.0.2042.1.2
+[ pol_qcp ]
+policyIdentifier = 0.4.0.194112.1.2
+[ pol_sid ]
+policyIdentifier = @SID_POLICY_OID@
+@SID_CPS_LINE@
+
+# qcStatements — referenced only by the QUALIFIED sign cert (@QC_SIGN_LINE@):
+# QcCompliance + QcSSCD + QcType=esign + QcPDS. (auth and non-qual carry none.)
+[ qc_seq_sign ]
+s1 = SEQUENCE:qc_compliance
+s2 = SEQUENCE:qc_sscd
+s3 = SEQUENCE:qc_type
+s4 = SEQUENCE:qc_pds
+[ qc_compliance ]
+id = OID:0.4.0.1862.1.1
+[ qc_sscd ]
+id = OID:0.4.0.1862.1.4
+[ qc_type ]
+id   = OID:0.4.0.1862.1.6
+info = SEQUENCE:qc_type_ids
+[ qc_type_ids ]
+t = OID:0.4.0.1862.1.6.1
+[ qc_pds ]
+id   = OID:0.4.0.1862.1.5
+info = SEQUENCE:qc_pds_locs
+[ qc_pds_locs ]
+loc = SEQUENCE:qc_pds_en
+[ qc_pds_en ]
+url  = IA5STRING:@LEAF_QC_PDS_URL@
+lang = PRINTABLESTRING:en
+
+# subjectDirectoryAttributes: dateOfBirth (id-pda-dateOfBirth) — referenced by @SDA_LINE@
+# (the 2.5.29.9 extension line) only when the DOB is derivable from the personal code.
+[ sda_seq ]
+a = SEQUENCE:sda_dob
+[ sda_dob ]
+type   = OID:1.3.6.1.5.5.7.9.1
+values = SET:sda_dob_set
+[ sda_dob_set ]
+v = GENERALIZEDTIME:@DOB@120000Z

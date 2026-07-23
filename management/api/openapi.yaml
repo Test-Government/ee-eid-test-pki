@@ -149,7 +149,9 @@ paths:
     post:
       summary: Issue a natural-person identity (auth and/or sign leaf)
       operationId: issueLeaf
-      parameters: [ { $ref: "#/components/parameters/IssuingCa" } ]
+      parameters:
+        - { $ref: "#/components/parameters/IssuingCa" }
+        - { $ref: "#/components/parameters/Country" }
       requestBody:
         required: true
         content:
@@ -173,6 +175,7 @@ paths:
         - { $ref: "#/components/parameters/IssuingCa" }
         - { $ref: "#/components/parameters/Code" }
         - { $ref: "#/components/parameters/LeafType" }
+        - { $ref: "#/components/parameters/Country" }
       responses:
         "200":
           description: certificate
@@ -190,6 +193,7 @@ paths:
         - { $ref: "#/components/parameters/IssuingCa" }
         - { $ref: "#/components/parameters/Code" }
         - { $ref: "#/components/parameters/LeafType" }
+        - { $ref: "#/components/parameters/Country" }
         - name: password
           in: query
           required: false
@@ -213,6 +217,7 @@ paths:
         - { $ref: "#/components/parameters/IssuingCa" }
         - { $ref: "#/components/parameters/Code" }
         - { $ref: "#/components/parameters/LeafTypeBoth" }
+        - { $ref: "#/components/parameters/Country" }
       requestBody:
         required: true
         content:
@@ -250,7 +255,8 @@ components:
       description: CA id (any CA — roots and intermediates)
       schema:
         type: string
-        enum: [community-eegovca2018, community-esteid2018, community-eegovca2025, community-esteid2025]
+        enum: [community-eegovca2018, community-esteid2018, community-eegovca2025, community-esteid2025,
+               community-rootg1e, community-eidq2024e, community-eidnq2021e]
     IssuingCa:
       name: ca
       in: path
@@ -258,13 +264,19 @@ components:
       description: Issuing (intermediate) CA id — leaves live under these
       schema:
         type: string
-        enum: [community-esteid2018, community-esteid2025]
+        enum: [community-esteid2018, community-esteid2025, community-eidq2024e, community-eidnq2021e]
     Code:
       name: code
       in: path
       required: true
-      description: Estonian personal code (isikukood)
+      description: Personal code / national number (isikukood; 11 digits for EE/LV/LT)
       schema: { type: string, pattern: "^[0-9]{11}$" }
+    Country:
+      name: country
+      in: query
+      required: false
+      description: ISO-3166 country of the identity — the ETSI PNO<CC>- serialNumber prefix + subject C. Default EE.
+      schema: { type: string, pattern: "^[A-Z]{2}$", default: EE }
     LeafType:
       name: type
       in: path
@@ -342,10 +354,11 @@ components:
 
     Leaf:
       type: object
-      required: [ca, family, code, serialNumber, surname, givenName, type, certSerial, notAfter, status, download]
+      required: [ca, family, country, code, serialNumber, surname, givenName, type, certSerial, notAfter, status, download]
       properties:
         ca: { type: string }
         family: { type: string }
+        country: { type: string }
         code: { type: string }
         serialNumber: { type: string }
         surname: { type: string }
@@ -384,9 +397,10 @@ components:
           type: array
           items:
             type: object
-            required: [ca, code, type, serialNumber]
+            required: [ca, country, code, type, serialNumber]
             properties:
               ca: { type: string }
+              country: { type: string }
               code: { type: string }
               type: { type: string }
               serialNumber: { type: string }
@@ -410,9 +424,10 @@ components:
           type: array
           items:
             type: object
-            required: [ca, code, type, status]
+            required: [ca, country, code, type, status]
             properties:
               ca: { type: string }
+              country: { type: string }
               code: { type: string }
               type: { type: string }
               status: { type: string, enum: [good, revoked, unknown] }

@@ -11,8 +11,8 @@ consuming project's truststore keeps working across restarts) and serves it:
 
 `<ca>` is a CA id. All ids/filenames/paths carry a **`community-`** prefix so they never
 clash with a client's real Estonian CA files: `community-eegovca2025`,
-`community-esteid2025`, `community-eegovca2018`, `community-esteid2018` (Smart-ID / Mobile-ID
-added later).
+`community-esteid2025`, `community-eegovca2018`, `community-esteid2018` (ID-card), plus
+`community-rootg1e`, `community-eidq2024e`, `community-eidnq2021e` (Smart-ID; Mobile-ID later).
 
 ## Build & run standalone
 
@@ -306,6 +306,9 @@ disabled comes from those endpoints on 8080/8081, not this API). JSON errors are
 | `GET /cas/{ca}/leaves/{code}/{type}.p12 [?password=PW]` | — | download as PKCS#12 (default pass `test`) |
 | `PUT /cas/{ca}/leaves/{code}/{type}/status` | `{"status","reason"?}` | set OCSP status `good`/`revoked`/`unknown` |
 | `GET /cas/{ca}/revocations` | — | list revoked entries (cert serial, personal code, time, reason) |
+
+Leaf endpoints (issue / `.crt` / `.p12` / status) take an optional **`?country=<CC>`** (default
+`EE`) — the ETSI `PNO<CC>-` serialNumber prefix + subject `C`. Smart-ID spans EE/LV/LT/BE.
 
 Examples (from a test suite / another container on the same network):
 

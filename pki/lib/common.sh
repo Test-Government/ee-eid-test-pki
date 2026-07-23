@@ -67,6 +67,7 @@ load_ca() {
   LEAF_HAS_CDP="no"; LEAF_POLICY_OID=""; LEAF_CPS_URL=""; LEAF_QC_PDS_URL=""
   LEAF_POLICY_ETSI_FIRST=""
   LEAF_VALIDITY_DAYS="1826"
+  SMARTID_QUALIFIED=""; LEAF_AUTH_EKU_OID=""; LEAF_SID_POLICY_OID=""   # smartid family
   # shellcheck source=/dev/null
   source "$f"
   CA_HOME="ca/$CA_ID"
@@ -84,6 +85,7 @@ fixture_exists() {
 sample_identity() {
   case "$1" in
     community-esteid2025) printf '38910239121\tMÖLDER\tHUGO MARTIN' ;;
+    community-eidq2024e|community-eidnq2021e) printf '40404040009\tSMITH\tMARY ÄNN' ;;
     *)                    printf '38001085718\tJÕEORG\tJAAK-KRISTJAN' ;;
   esac
 }

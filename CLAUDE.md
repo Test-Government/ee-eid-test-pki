@@ -32,14 +32,18 @@ Estonian systems. Covers three eID means: ID-card, Mobile-ID, Smart-ID. Licensed
   downloaded artifacts don't clash with a client's real CA files either.
 - Real leaf keys (no shortcuts): ID-card EC P-384, Mobile-ID EC P-256, Smart-ID RSA-6144.
 
-## Build & verify (ID-card family)
+## Build & verify
 
 Requires OpenSSL 3.x + bash; scripts **must** stay LF. On Windows, run via Git-Bash:
 
 ```bash
-# from repo root
+# from repo root — ID-card family
 "C:\Program Files\Git\bin\bash.exe" pki/scripts/build-idcard.sh   # build both chains + sample identity
 "C:\Program Files\Git\bin\bash.exe" pki/scripts/verify-idcard.sh  # decode + chain-verify (read-only)
+
+# Smart-ID family (chain B). CAs only by default; sample leaves opt-in (RSA-6144 is slow):
+SMARTID_SAMPLE=1 bash pki/scripts/build-smartid.sh                # add SMARTID_KEY_BITS=2048 for a fast dev run
+bash pki/scripts/verify-smartid.sh                               # decode + chain-verify (read-only)
 
 # issue a custom identity (auth + sign) — CA ids carry a "community-" prefix:
 pki/scripts/gen-leaf.sh community-esteid2025 <code> <SURNAME> <GIVEN> auth
@@ -84,13 +88,17 @@ The `.gitignore` re-includes `pki/fixtures/` despite the global `*.key` rule.
 
 ## Status / what's next
 
-ID-card family done and verified; Docker image built, serves CRL+OCSP+trust bundles (smoke
-test green). PKCS#12 export (`gen-p12.sh`) and a **management API on :8082** (nginx →
+ID-card and **Smart-ID** families done and verified; Docker image built, serves CRL+OCSP+trust
+bundles (smoke test green). Smart-ID adds chain B (SK `ROOT G1E → EID-Q 2024E` qualified +
+`EID-NQ 2021E` non-qualified): RSA-6144 leaves, custom auth EKU `1.3.6.1.4.1.62306.5.7.0`, SAN
+account number, qcStatements on qualified-sign only; SK policy/EKU OIDs kept **real** (SK DEMO
+does — unlike the ESTEID2025 `2.999.` test prefix, docs §4.2). Sample Smart-ID leaves are
+**opt-in** (`SMARTID_SAMPLE=1`; RSA-6144 keygen is slow), so the default image ships chain B
+CAs but no baked Smart-ID identities. PKCS#12 export (`gen-p12.sh`) and a **management API on :8082** (nginx →
 fcgiwrap → `management/api/dispatch.sh`: REST — toggle OCSP/CRL, issue/fetch/revoke leaves,
 set OCSP status good/revoked/unknown) are in. The API is **spec-first**
 (`management/api/openapi.yaml`, OpenAPI 3.0) and conformance-tested with Schemathesis via
-`docker/conformance.sh` (passes clean). Next per build order: **Smart-ID** (qualified +
-non-qualified under `EID-Q 2024E` / `EID-NQ 2021E`, RSA-6144, custom auth EKU
-`1.3.6.1.4.1.62306.5.7.0`), then **Mobile-ID** (`EID-Q 2021E`, EC P-256, no EKU). Later:
-delegated OCSP responder certs, an LDAP cert directory, and a UI (`management/ui/`, served
-same-origin). Full roadmap: `docs/ROADMAP.md`.
+`docker/conformance.sh` (passes clean). Next per build order: **Mobile-ID** (`EID-Q 2021E`,
+EC P-256, no EKU — reuses chain B's `ROOT G1E`). Later: delegated OCSP responder certs, an
+LDAP cert directory, and a UI (`management/ui/`, served same-origin). Full roadmap:
+`docs/ROADMAP.md`.
