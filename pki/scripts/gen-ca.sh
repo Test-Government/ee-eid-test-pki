@@ -71,6 +71,10 @@ if [ "${FRESH_CA:-0}" != "1" ] && fixture_exists "$CA_ID"; then
   exit 0
 fi
 
+# Minting a new CA identity: never reuse a key already on disk (gen_key keeps
+# existing files). A leftover key — e.g. the image's baked /pki/out, built from
+# the PUBLIC pinned fixtures — would get a fresh cert silently re-issued over it.
+rm -f "$CA_HOME/private/$CA_ID.key"
 gen_key "$CA_KEY_ALG" "$CA_KEY_PARAM" "$CA_HOME/private/$CA_ID.key"
 
 if [ "$CA_TYPE" = "root" ]; then
