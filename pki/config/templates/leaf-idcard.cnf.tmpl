@@ -4,6 +4,17 @@
 # Generation-specific bits (EKU/BC criticality, CDP presence, policy OID, URLs)
 # are supplied from the issuing CA's env — see docs §3.1 / §3.1b.
 
+# Real ESTEID CNs may exceed RFC 5280's 64-char ub-common-name (both SK-CPR-ESTEID2018
+# §2.1 and Zetes Certificate Profiles v1.3 say so explicitly — docs §4.1); lift
+# OpenSSL's enforced limit so long names issue as-is.
+openssl_conf = openssl_init
+
+[ openssl_init ]
+stbl_section = string_table
+
+[ string_table ]
+commonName = min:1,max:32768
+
 [ req ]
 default_bits       = 2048
 distinguished_name = req_dn

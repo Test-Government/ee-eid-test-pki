@@ -155,7 +155,8 @@ NCP+/QCP policy. The ETSI OID is constant across document types.
 
 ### 3.1b ID-card (CURRENT) — ESTEID2025 natural person — [C]
 Source: Zetes Estonia *"Technical profile of certificates, OCSP responses and CRLs"*
-(`https://repository.eidpki.ee/repository/`) + live-decoded CA certs. This is the
+(`https://repository.eidpki.ee/repository/`; current: v1.3, 2026-05-20,
+`…/static/documents/CertificateProfiles-20260520.pdf`) + live-decoded CA certs. This is the
 **current** generation (A2), issued since 2025-11-17. Structurally very close to ESTEID2018,
 with these deltas: **P-384 CA & leaf keys, ecdsa-SHA384, Zetes `eidpki.ee` endpoints, a
 shifted policy-arc layout, and a `2.999.` test-OID prefix.**
@@ -173,6 +174,7 @@ shifted policy-arc layout, and a `2.999.` test-OID prefix.**
 | **AIA** | OCSP `http://ocsp.eidpki.ee`, caIssuers `http://crt.eidpki.ee/ESTEID2025.crt` | same |
 | **CRL DP** | `http://crl.eidpki.ee/ESTEID2025.crl` | same |
 | **validity** | tied to the document's expiry (ID card ≈ 5 y); expiry normalized to 20:59:59Z / 21:59:59Z | same |
+| **subject DN** | as ESTEID2018, except `givenName` is **optional** (omitted, CN `SURNAME,CODE`) — see §4.1 | same |
 
 **ESTEID2025 policy arc** — the doc-type layout is `1.3.6.1.4.1.51361.2.1.<type>`:
 `1`=citizen ID, `2`=EU-citizen ID, `3`=long-term residence, `4`=temp residence,
@@ -234,9 +236,19 @@ qualified (**QSCD**) and a non-qualified (**Basic**, LoA substantial) product.
   **`PNO<CC>-<code>`** → Estonia `PNOEE-<11-digit isikukood>` (e.g. `PNOEE-38001085718`).
   Other prefixes: `PAS` (passport), `IDC` (national ID). **Introduced 2018 (ID-card) /
   2019-06-05 (Mobile-ID)**; before that the field held the bare code.
-- `givenName` (2.5.4.42) and `surname` (2.5.4.4), UTF-8; if absent, replaced by `−` (U+2212).
+- `givenName` (2.5.4.42) and `surname` (2.5.4.4), UTF-8. A person with no given name:
+  - **ESTEID2018 / SK**: attribute kept, value replaced by `−` (U+2212).
+  - **ESTEID2025**: `givenName` is **optional — omitted** (Zetes profile v1.1+, 2026-04-23).
+    ⚠ Not yet reproduced: `gen-leaf.sh` and the API require a given name.
 - `CN` (2.5.4.3):
   - **ID-card**: `SURNAME,GIVENNAME,PERSONALCODE` — e.g. `JÕEORG,JAAK-KRISTJAN,38001085718`.
+    ESTEID2025 without a given name: `SURNAME,PERSONALCODE` (e.g. `JÕEORG,38001085718`).
+    **Both generations** allow CN beyond RFC 5280's 64-char `ub-common-name` (and `givenName`
+    beyond its 16-char bound) — names are copied in full; length/shortening is set upstream
+    (Police and Border Guard Board / Identity Documents Act), not by the CA.
+    Sources: [SK-CPR-ESTEID2018 v1.3 §2.1](https://www.skidsolutions.eu/upload/files/SK-CPR-ESTEID2018-EN-v1_3_20220217.pdf),
+    [Zetes Certificate Profiles v1.3, 2026-05-20, subscriber Subject DN](https://repository.eidpki.ee/static/documents/CertificateProfiles-20260520.pdf).
+    Our leaf template lifts OpenSSL's 64-char CN limit to match.
   - **Mobile-ID**: comma-separated name; profile example `MINDAUGAS,BUTKUS` — ⚠ ordering
     (given,surname vs surname,given) differs from ID-card in the docs; **verify against a
     real cert** before fixing our template.
