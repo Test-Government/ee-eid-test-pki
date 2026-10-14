@@ -96,6 +96,20 @@ if openssl ocsp -issuer "ca/community-esteid2025/community-esteid2025.crt" \
   ok "OCSP revoked leaf -> revoked"
 else bad "OCSP revoked leaf -> revoked"; fi
 
+# Back-to-back status changes must produce distinct CRL lastUpdate (and so a newer
+# Last-Modified) — otherwise If-Modified-Since clients get 304 and keep a stale CRL.
+crl_last_update() {
+  curl -fsS "$HTTP/crl/$CA.crl" -o /tmp/lu.crl 2>/dev/null \
+    && openssl crl -inform DER -in /tmp/lu.crl -noout -lastupdate 2>/dev/null
+}
+curl -fsS -X PUT "$L/$TC/auth/status" -d '{"status":"revoked"}' >/dev/null 2>&1
+lu1="$(crl_last_update)"
+curl -fsS -X PUT "$L/$TC/auth/status" -d '{"status":"good"}' >/dev/null 2>&1
+lu2="$(crl_last_update)"
+[ -n "$lu1" ] && [ -n "$lu2" ] && [ "$lu1" != "$lu2" ] \
+  && ok "back-to-back status changes -> distinct CRL lastUpdate ($lu1 / $lu2)" \
+  || bad "back-to-back status changes -> distinct CRL lastUpdate ($lu1 / $lu2)"
+
 echo
 echo "RESULT: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]
